@@ -1,6 +1,6 @@
 pipeline {
   agent any
-  environment {
+  environment{
     DOCKERHUB = credentials("dockerhub")
     GITHUB_REPO="https://github.com/dltlaos11/hello_world_server"
     DOCKER_REPO="dltlaos11/hello_world_server"
@@ -44,7 +44,10 @@ pipeline {
               configName: "remote_server",
               verbose: true,
               transfers: [
-                sshTransfer(execCommand: "touch test_file")
+                sshTransfer(execCommand: "docker pull $DOCKER_REPO:$VERSION"),
+                sshTransfer(execCommand: "docker ps -aq --filter 'name=hello_world_server' | xargs -r docker stop"),
+                sshTransfer(execCommand: "docker ps -aq --filter 'name=hello_world_server' | xargs -r docker rm"),
+                sshTransfer(execCommand: "docker run -d --name hello_world_server -p 8000:8000 $DOCKER_REPO:$VERSION")
               ]
             )
           ]
@@ -55,14 +58,14 @@ pipeline {
   post {
     success {
       slackSend (
-          channel: "주용준",
+          channel: "#랜덤",
           color: "#00FF00",
           message: "SUCCESS : Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
           )
     }
     failure {
       slackSend (
-          channel: "주용",
+          channel: "#랜덤",
           color: "#FF0000",
           message: "FAIL : Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
           )
