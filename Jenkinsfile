@@ -3,7 +3,7 @@ pipeline {
     stages {
       stage("CheckOut") {
         steps {
-          git url: 'https://github.com/lyhan12/hello_world_server.git',
+          git url: 'https://github.com/dltlaos11/hello_world_server.git',
               branch: 'main'
         }
       }
