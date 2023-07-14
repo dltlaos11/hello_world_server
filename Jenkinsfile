@@ -1,6 +1,7 @@
 pipeline {
   agent any
   environment {
+    DOCKERHUB = credentials("dockerhub")
     GITHUB_REPO="https://github.com/dltlaos11/hello_world_server"
     DOCKER_REPO="dltlaos11/hello_world_server"
     VERSION=1.0
@@ -29,7 +30,9 @@ pipeline {
     }
     stage("Docker Push") {
       steps {
-        sh "echo 'Docker Push'"
+        sh "docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW"
+        sh "docker push $DOCKER_REPO:$VERSION"
+        sh "docker logout"
       }
     }
     stage("Deploy") {
@@ -41,7 +44,7 @@ pipeline {
   post {
     success {
       slackSend (
-          channel: "주용준",
+          channel: "#주용준",
           color: "#00FF00",
           message: "SUCCESS : Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
           )
